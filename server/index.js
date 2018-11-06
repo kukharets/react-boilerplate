@@ -13,7 +13,8 @@ const ngrok =
     : false;
 const { resolve } = require('path');
 const app = express();
-
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
 // app.use('/api', myApi);
 
@@ -53,4 +54,18 @@ app.listen(port, host, async err => {
   } else {
     logger.appStarted(port, prettyHost);
   }
+});
+
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://beerfinder.eu.auth0.com/.well-known/jwks.json`,
+  }),
+
+  // Validate the audience and the issuer.
+  audience: 'LXpUSyJz72JM8AtMqEF6c8JNAjwQzhXR',
+  issuer: `beerfinder.eu.auth0.com`,
+  algorithms: ['RS256'],
 });
